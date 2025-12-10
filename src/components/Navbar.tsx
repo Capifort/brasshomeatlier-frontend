@@ -71,7 +71,7 @@ export default function Navbar() {
           to="/"
           sx={{ textDecoration: "none", color: "primary.main", fontWeight: 800, mr: 2 }}
         >
-          brasshomeatlier
+          Brass Home Atelier
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         <Button
