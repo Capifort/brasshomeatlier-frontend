@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   AppBar,
@@ -12,14 +12,19 @@ import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { categories } from "../data/mockData";
 import { ThemeModeContext } from "../providers/ThemeModeProvider";
-import { useContext } from "react";
+import { getCategories } from "../lib/api";
+import type { Category } from "../lib/database.types";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const theme = useTheme();
   const { toggleMode } = useContext(ThemeModeContext);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    getCategories().then(setCategories).catch(console.error);
+  }, []);
 
   const goToCategory = (categoryId: string) => {
     navigate(`/category/${categoryId}`);
@@ -60,4 +65,3 @@ export default function Navbar() {
     </AppBar>
   );
 }
-

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardMedia, Typography, CardActionArea, Grid2 as Grid } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import type { Category } from "../data/mockData";
+import type { Category } from "../lib/database.types";
 
 type Props = {
   categories: Category[];
@@ -13,8 +13,8 @@ export default function CategoryList({ categories }: Props) {
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={c.id}>
           <Card variant="outlined" sx={{ height: "100%" }}>
             <CardActionArea component={RouterLink} to={`/category/${c.id}`} sx={{ height: "100%" }}>
-              {c.imageUrl && (
-                <CardMedia component="img" height="160" image={c.imageUrl} alt={c.name} sx={{ objectFit: "cover" }} />
+              {c.image_url && (
+                <CardMedia component="img" height="160" image={c.image_url} alt={c.name} sx={{ objectFit: "cover" }} />
               )}
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -31,5 +31,3 @@ export default function CategoryList({ categories }: Props) {
     </Grid>
   );
 }
-
-

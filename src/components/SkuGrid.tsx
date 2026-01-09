@@ -1,5 +1,5 @@
 import { Grid2 as Grid } from "@mui/material";
-import type { Sku } from "../data/mockData";
+import type { Sku } from "../lib/database.types";
 import SkuCard from "./SkuCard";
 
 type Props = {
@@ -17,5 +17,3 @@ export default function SkuGrid({ skus }: Props) {
     </Grid>
   );
 }
-
-

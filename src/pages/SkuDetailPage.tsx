@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import {
   Alert,
@@ -11,16 +11,56 @@ import {
   Paper,
   Stack,
   Typography,
-  Button
+  Button,
+  Skeleton
 } from "@mui/material";
-import { skus, categories } from "../data/mockData";
+import { getSkuById, getCategoryById } from "../lib/api";
+import type { Sku, Category } from "../lib/database.types";
 import QuoteDialog from "../components/QuoteDialog";
 
 export default function SkuDetailPage() {
   const { skuId } = useParams<{ skuId: string }>();
-  const sku = useMemo(() => skus.find((s) => s.id === skuId), [skuId]);
-  const category = useMemo(() => categories.find((c) => c.id === sku?.categoryId), [sku?.categoryId]);
+  const [sku, setSku] = useState<Sku | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [loading, setLoading] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      if (!skuId) return;
+      try {
+        const skuData = await getSkuById(skuId);
+        setSku(skuData);
+        if (skuData?.category_id) {
+          const categoryData = await getCategoryById(skuData.category_id);
+          setCategory(categoryData);
+        }
+      } catch (error) {
+        console.error("Failed to load SKU:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [skuId]);
+
+  if (loading) {
+    return (
+      <Box>
+        <Skeleton width={300} height={24} sx={{ mb: 2 }} />
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Skeleton variant="rectangular" height={380} sx={{ borderRadius: 2 }} />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Skeleton width="80%" height={48} sx={{ mb: 1 }} />
+            <Skeleton width="100%" height={20} />
+            <Skeleton width="100%" height={20} />
+          </Grid>
+        </Grid>
+      </Box>
+    );
+  }
 
   if (!sku) {
     return <Alert severity="warning">SKU not found.</Alert>;
@@ -43,10 +83,9 @@ export default function SkuDetailPage() {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper variant="outlined" sx={{ overflow: "hidden" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={
-                sku.imageUrl ??
+                sku.image_url ??
                 "https://images.unsplash.com/photo-1616386234729-1f4a9553b7c8?w=1200&q=80&auto=format&fit=crop"
               }
               alt={sku.name}
@@ -63,7 +102,7 @@ export default function SkuDetailPage() {
           </Typography>
 
           <Stack direction="row" spacing={1} sx={{ mt: 2 }} flexWrap="wrap" useFlexGap>
-            {sku.finishOptions.map((f) => (
+            {sku.finish_options.map((f) => (
               <Chip key={f} label={f} variant="outlined" />
             ))}
           </Stack>
@@ -73,10 +112,10 @@ export default function SkuDetailPage() {
               Pricing
             </Typography>
             <Typography variant="body1" sx={{ mt: 0.5 }}>
-              <strong>${sku.pricePerKgUsd.toFixed(2)}</strong> per kg
+              <strong>${sku.price_per_kg_usd.toFixed(2)}</strong> per kg
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Minimum order: {sku.minOrderKg} kg • Standard lead time: {sku.leadTimeDays} days
+              Minimum order: {sku.min_order_kg} kg • Standard lead time: {sku.lead_time_days} days
             </Typography>
           </Paper>
 
@@ -93,7 +132,7 @@ export default function SkuDetailPage() {
         </Grid>
       </Grid>
 
-      {sku.specs && (
+      {sku.specs && typeof sku.specs === "object" && !Array.isArray(sku.specs) && (
         <>
           <Divider sx={{ my: 4 }} />
           <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
@@ -101,7 +140,7 @@ export default function SkuDetailPage() {
           </Typography>
           <Paper variant="outlined" sx={{ p: 2 }}>
             <Stack spacing={1}>
-              {Object.entries(sku.specs).map(([k, v]) => (
+              {Object.entries(sku.specs as Record<string, string | number>).map(([k, v]) => (
                 <Stack key={k} direction="row" spacing={2} alignItems="center">
                   <Typography variant="body2" color="text.secondary" sx={{ width: 200 }}>
                     {k}
@@ -114,9 +153,7 @@ export default function SkuDetailPage() {
         </>
       )}
 
-      <QuoteDialog open={quoteOpen} onClose={() => setQuoteOpen(false)} skuName={sku.name} />
+      <QuoteDialog open={quoteOpen} onClose={() => setQuoteOpen(false)} skuId={sku.id} skuName={sku.name} />
     </Box>
   );
 }
-
-
