@@ -26,6 +26,7 @@ import {
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { getSkus, getCategories, createSku, updateSku, deleteSku } from "../../lib/api";
 import type { Sku, SkuInsert, Category } from "../../lib/database.types";
+import ImageUpload from "../../components/ImageUpload";
 
 export default function AdminSkus() {
   const [skus, setSkus] = useState<Sku[]>([]);
@@ -241,7 +242,7 @@ export default function AdminSkus() {
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>{editingSku ? "Edit SKU" : "Add SKU"}</DialogTitle>
         <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
                 label="Name"
@@ -304,6 +305,9 @@ export default function AdminSkus() {
             </Stack>
 
             <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Finish Options
+              </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <TextField
                   label="Add Finish Option"
@@ -324,24 +328,17 @@ export default function AdminSkus() {
               </Stack>
             </Box>
 
-            <TextField
-              label="Image URL"
-              value={formData.image_url || ""}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              fullWidth
-              placeholder="https://example.com/image.jpg"
-            />
-
-            {formData.image_url && (
-              <Box sx={{ textAlign: "center" }}>
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  style={{ maxWidth: "100%", maxHeight: 150, borderRadius: 8, objectFit: "cover" }}
-                  onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
-                />
-              </Box>
-            )}
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Product Image
+              </Typography>
+              <ImageUpload
+                currentImageUrl={formData.image_url}
+                onImageUploaded={(url) => setFormData({ ...formData, image_url: url })}
+                onImageRemoved={() => setFormData({ ...formData, image_url: "" })}
+                folder="skus"
+              />
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

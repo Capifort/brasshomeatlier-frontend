@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Divider, Skeleton, Stack } from "@mui/material";
-import CategoryList from "../components/CategoryList";
-import SkuGrid from "../components/SkuGrid";
-import { getCategories, getSkus } from "../lib/api";
-import type { Category, Sku } from "../lib/database.types";
+import { Box, Typography, Skeleton, Stack, Grid2 as Grid } from "@mui/material";
+import SkuCard from "../components/SkuCard";
+import { getSkus } from "../lib/api";
+import type { Sku } from "../lib/database.types";
 
 export default function Home() {
-  const [categories, setCategories] = useState<Category[]>([]);
   const [skus, setSkus] = useState<Sku[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [categoriesData, skusData] = await Promise.all([getCategories(), getSkus()]);
-        setCategories(categoriesData);
+        const skusData = await getSkus();
         setSkus(skusData);
       } catch (error) {
         console.error("Failed to load data:", error);
@@ -28,31 +25,46 @@ export default function Home() {
   if (loading) {
     return (
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
-          Categories
-        </Typography>
-        <Stack direction="row" spacing={2}>
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} variant="rectangular" width={300} height={200} sx={{ borderRadius: 2 }} />
+        <Skeleton width={200} height={40} sx={{ mb: 3 }} />
+        <Grid container spacing={3}>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
+              <Skeleton variant="rectangular" height={380} sx={{ borderRadius: 2 }} />
+            </Grid>
           ))}
-        </Stack>
+        </Grid>
       </Box>
     );
   }
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
-        Categories
-      </Typography>
-      <CategoryList categories={categories} />
+      {/* Products Header */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+            All Products
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {skus.length} products available
+          </Typography>
+        </Box>
+      </Stack>
 
-      <Divider sx={{ my: 4 }} />
-
-      <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
-        Featured SKUs
-      </Typography>
-      <SkuGrid skus={skus.slice(0, 3)} />
+      {/* Products Grid */}
+      {skus.length === 0 ? (
+        <Typography color="text.secondary" sx={{ textAlign: "center", py: 8 }}>
+          No products available yet.
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {skus.map((sku) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={sku.id}>
+              <SkuCard sku={sku} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   );
 }

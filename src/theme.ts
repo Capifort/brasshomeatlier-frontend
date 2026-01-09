@@ -7,40 +7,84 @@ export function createAppTheme(mode: PaletteMode) {
     palette: {
       mode,
       primary: {
-        main: "#b8860b"
+        main: "#8B1538", // Rich maroon like Prima
+        light: "#A91D45",
+        dark: "#6B102B"
       },
       secondary: {
-        main: "#6b7280"
+        main: "#C9A962", // Brass gold accent
+        light: "#D4BC7D",
+        dark: "#B8944D"
       },
       background: isDark
         ? {
-            default: "#121212",
-            paper: "#1e1e1e"
+            default: "#0f0f0f",
+            paper: "#1a1a1a"
           }
         : {
-            default: "#faf9f6",
-            paper: "#ffffff"
+            default: "#ffffff",
+            paper: "#f8f8f8"
+          },
+      text: isDark
+        ? {
+            primary: "#ffffff",
+            secondary: "#a0a0a0"
+          }
+        : {
+            primary: "#1a1a1a",
+            secondary: "#666666"
           }
     },
     shape: {
-      borderRadius: 10
+      borderRadius: 4
     },
     typography: {
-      fontFamily:
-        '"Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-      h1: { fontWeight: 700 },
-      h2: { fontWeight: 700 },
-      h3: { fontWeight: 700 }
+      fontFamily: '"DM Sans", "Helvetica Neue", Arial, sans-serif',
+      h1: { fontWeight: 700, letterSpacing: "-0.02em" },
+      h2: { fontWeight: 700, letterSpacing: "-0.01em" },
+      h3: { fontWeight: 600 },
+      h4: { fontWeight: 600 },
+      h5: { fontWeight: 600 },
+      h6: { fontWeight: 600 },
+      button: { fontWeight: 600, textTransform: "none" }
     },
     components: {
       MuiButton: {
         defaultProps: {
           disableElevation: true
+        },
+        styleOverrides: {
+          root: {
+            borderRadius: 4,
+            padding: "10px 24px"
+          },
+          contained: {
+            "&:hover": {
+              transform: "translateY(-1px)",
+              boxShadow: "0 4px 12px rgba(139, 21, 56, 0.3)"
+            }
+          }
+        }
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            "&:hover": {
+              transform: "translateY(-4px)",
+              boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
+            }
+          }
+        }
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: 4
+          }
         }
       }
     }
   });
 }
-
-
-

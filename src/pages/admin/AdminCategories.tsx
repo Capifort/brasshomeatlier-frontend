@@ -24,6 +24,7 @@ import {
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../lib/api";
 import type { Category, CategoryInsert } from "../../lib/database.types";
+import ImageUpload from "../../components/ImageUpload";
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -196,7 +197,7 @@ export default function AdminCategories() {
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{editingCategory ? "Edit Category" : "Add Category"}</DialogTitle>
         <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
               label="Name"
               value={formData.name}
@@ -213,23 +214,18 @@ export default function AdminCategories() {
               multiline
               rows={3}
             />
-            <TextField
-              label="Image URL"
-              value={formData.image_url || ""}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              fullWidth
-              placeholder="https://example.com/image.jpg"
-            />
-            {formData.image_url && (
-              <Box sx={{ textAlign: "center" }}>
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  style={{ maxWidth: "100%", maxHeight: 150, borderRadius: 8, objectFit: "cover" }}
-                  onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
-                />
-              </Box>
-            )}
+            
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Category Image
+              </Typography>
+              <ImageUpload
+                currentImageUrl={formData.image_url}
+                onImageUploaded={(url) => setFormData({ ...formData, image_url: url })}
+                onImageRemoved={() => setFormData({ ...formData, image_url: "" })}
+                folder="categories"
+              />
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

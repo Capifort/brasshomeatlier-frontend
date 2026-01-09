@@ -31,7 +31,7 @@ export default function App() {
           element={
             <Box display="flex" flexDirection="column" minHeight="100vh">
               <Navbar />
-              <Container maxWidth="lg" sx={{ pb: 6, pt: 2 }}>
+              <Container maxWidth="xl" sx={{ flex: 1, pb: 6, pt: 4, px: { xs: 2, md: 3 } }}>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/category/:categoryId" element={<CategoryPage />} />

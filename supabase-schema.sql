@@ -98,3 +98,32 @@ CREATE POLICY "Public update for skus" ON skus
 CREATE POLICY "Public delete for skus" ON skus
   FOR DELETE USING (true);
 
+-- ============================================
+-- STORAGE SETUP (Run this after creating tables)
+-- ============================================
+-- Note: You need to create the storage bucket manually in Supabase Dashboard:
+-- 1. Go to Storage in your Supabase dashboard
+-- 2. Click "New bucket"
+-- 3. Name it "products" and check "Public bucket"
+-- 4. Then run these policies:
+
+-- Storage policies for the 'products' bucket
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('products', 'products', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public read access to product images
+CREATE POLICY "Public read access for products bucket" ON storage.objects
+  FOR SELECT USING (bucket_id = 'products');
+
+-- Allow anyone to upload (for admin dashboard)
+CREATE POLICY "Allow uploads to products bucket" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'products');
+
+-- Allow anyone to update (for admin dashboard)
+CREATE POLICY "Allow updates to products bucket" ON storage.objects
+  FOR UPDATE USING (bucket_id = 'products');
+
+-- Allow anyone to delete (for admin dashboard)
+CREATE POLICY "Allow deletes from products bucket" ON storage.objects
+  FOR DELETE USING (bucket_id = 'products');
