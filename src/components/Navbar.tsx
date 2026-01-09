@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   AppBar,
@@ -15,19 +15,13 @@ import {
   ListItemText,
   Divider
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import CloseIcon from "@mui/icons-material/Close";
-import { ThemeModeContext } from "../providers/ThemeModeProvider";
 import { getCategories } from "../lib/api";
 import type { Category } from "../lib/database.types";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const { toggleMode } = useContext(ThemeModeContext);
   const [categories, setCategories] = useState<Category[]>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -42,14 +36,12 @@ export default function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [])
 
   const goToCategory = (categoryId: string) => {
     navigate(`/category/${categoryId}`);
     setMobileOpen(false);
   };
-
-  const isDark = theme.palette.mode === "dark";
 
   return (
     <>
@@ -57,11 +49,7 @@ export default function Navbar() {
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor: scrolled
-            ? isDark
-              ? "rgba(0,0,0,0.85)"
-              : "rgba(251,251,253,0.85)"
-            : "transparent",
+          bgcolor: scrolled ? "rgba(251,251,253,0.85)" : "transparent",
           backdropFilter: scrolled ? "saturate(180%) blur(20px)" : "none",
           borderBottom: scrolled ? "1px solid" : "none",
           borderColor: "divider",
@@ -125,7 +113,7 @@ export default function Navbar() {
                     borderRadius: 2,
                     "&:hover": {
                       color: "text.primary",
-                      bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"
+                      bgcolor: "rgba(0,0,0,0.04)"
                     }
                   }}
                 >
@@ -134,26 +122,8 @@ export default function Navbar() {
               ))}
             </Stack>
 
-            {/* Right Icons */}
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: "auto" }}>
-              <IconButton
-                size="small"
-                onClick={toggleMode}
-                sx={{
-                  color: "text.secondary",
-                  bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
-                  "&:hover": {
-                    bgcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"
-                  }
-                }}
-              >
-                {isDark ? (
-                  <Brightness7Icon sx={{ fontSize: 18 }} />
-                ) : (
-                  <Brightness4Icon sx={{ fontSize: 18 }} />
-                )}
-              </IconButton>
-            </Stack>
+            {/* Spacer */}
+            <Box sx={{ ml: "auto" }} />
           </Toolbar>
         </Container>
       </AppBar>

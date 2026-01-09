@@ -75,17 +75,17 @@ export default function SkuCard({ sku }: Props) {
         />
       </Box>
       
-      <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-        <Stack spacing={0.75}>
+      <CardContent sx={{ flexGrow: 1, p: 2 }}>
+        <Stack spacing={0.5}>
           {/* Finish preview */}
           {sku.finish_options.length > 0 && (
-            <Stack direction="row" spacing={0.5} alignItems="center">
+            <Stack direction="row" spacing={0.25} alignItems="center">
               {sku.finish_options.slice(0, 3).map((_, i) => (
                 <Box
                   key={i}
                   sx={{
-                    width: 12,
-                    height: 12,
+                    width: 8,
+                    height: 8,
                     borderRadius: "50%",
                     border: "1px solid",
                     borderColor: "divider",
@@ -93,50 +93,33 @@ export default function SkuCard({ sku }: Props) {
                   }}
                 />
               ))}
-              {sku.finish_options.length > 3 && (
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", ml: 0.5 }}>
-                  +{sku.finish_options.length - 3}
-                </Typography>
-              )}
             </Stack>
           )}
 
           <Typography
-            variant="subtitle1"
+            variant="subtitle2"
             sx={{
               fontWeight: 600,
-              fontSize: "1rem",
+              fontSize: "0.875rem",
               lineHeight: 1.3,
               color: "text.primary",
-              mt: 1
+              mt: 0.5,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden"
             }}
           >
             {sku.name}
           </Typography>
 
-          <Typography
-            variant="body2"
-            sx={{
-              color: "text.secondary",
-              lineHeight: 1.5,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              fontSize: "0.8125rem",
-              mt: 0.5
-            }}
-          >
-            {sku.description}
-          </Typography>
-
-          <Box sx={{ mt: "auto", pt: 2 }}>
+          <Box sx={{ mt: "auto", pt: 1.5 }}>
             <Typography
-              variant="body1"
+              variant="body2"
               sx={{
                 fontWeight: 600,
                 color: "text.primary",
-                fontSize: "1.0625rem"
+                fontSize: "0.9375rem"
               }}
             >
               ${sku.price_per_kg_usd.toFixed(2)}
@@ -145,7 +128,7 @@ export default function SkuCard({ sku }: Props) {
                 sx={{
                   color: "text.secondary",
                   fontWeight: 400,
-                  fontSize: "0.8125rem",
+                  fontSize: "0.75rem",
                   ml: 0.25
                 }}
               >

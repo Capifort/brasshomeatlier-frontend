@@ -223,9 +223,9 @@ export default function CategoryPage() {
           No products match the selected filter.
         </Typography>
       ) : (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={2}>
           {filteredSkus.map((sku) => (
-            <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={sku.id}>
+            <Grid size={{ xs: 6, sm: 4, md: 2.4, lg: 2.4 }} key={sku.id}>
               <SkuCard sku={sku} />
             </Grid>
           ))}
