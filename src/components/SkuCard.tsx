@@ -1,5 +1,6 @@
-import { Card, CardContent, CardMedia, Typography, CardActions, Button, Chip, Stack, Box } from "@mui/material";
+import { Card, CardContent, CardMedia, Typography, Box, Stack } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
 import type { Sku } from "../lib/database.types";
 
 type Props = {
@@ -7,134 +8,153 @@ type Props = {
 };
 
 export default function SkuCard({ sku }: Props) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
     <Card
-      variant="outlined"
+      component={RouterLink}
+      to={`/sku/${sku.id}`}
       sx={{
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        textDecoration: "none",
+        color: "inherit",
+        cursor: "pointer",
+        overflow: "hidden",
         border: "1px solid",
-        borderColor: "divider",
+        borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+        background: isDark
+          ? "linear-gradient(145deg, rgba(28,28,30,0.8) 0%, rgba(28,28,30,0.6) 100%)"
+          : "linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%)",
         "&:hover": {
-          borderColor: "primary.main",
-          "& .sku-image": {
+          borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
+          "& .product-image": {
             transform: "scale(1.05)"
           }
         }
       }}
     >
-      <Box sx={{ overflow: "hidden", position: "relative" }}>
+      {/* Image Container */}
+      <Box
+        sx={{
+          position: "relative",
+          overflow: "hidden",
+          pt: "100%",
+          bgcolor: isDark ? "rgba(255,255,255,0.03)" : "#f5f5f7"
+        }}
+      >
         <CardMedia
           component="img"
-          height="200"
           image={sku.image_url || "https://images.unsplash.com/photo-1616386234729-1f4a9553b7c8?w=800&q=80&auto=format&fit=crop"}
           alt={sku.name}
-          className="sku-image"
+          className="product-image"
           sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
             objectFit: "cover",
-            transition: "transform 0.3s ease"
+            transition: "transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)"
           }}
         />
-        {sku.min_order_kg && (
-          <Chip
-            label={`Min. ${sku.min_order_kg}kg`}
-            size="small"
-            sx={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              bgcolor: "primary.main",
-              color: "white",
-              fontWeight: 600,
-              fontSize: "0.7rem"
-            }}
-          />
-        )}
+        
+        {/* Gradient overlay */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "30%",
+            background: "linear-gradient(to top, rgba(0,0,0,0.1), transparent)",
+            pointerEvents: "none"
+          }}
+        />
       </Box>
       
       <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 600,
-            mb: 1,
-            lineHeight: 1.3,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden"
-          }}
-        >
-          {sku.name}
-        </Typography>
-        
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            minHeight: 40
-          }}
-        >
-          {sku.description}
-        </Typography>
-
-        <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
-          {sku.finish_options.slice(0, 3).map((f) => (
-            <Chip
-              key={f}
-              size="small"
-              label={f}
-              variant="outlined"
-              sx={{
-                fontSize: "0.7rem",
-                height: 24,
-                borderColor: "divider"
-              }}
-            />
-          ))}
-          {sku.finish_options.length > 3 && (
-            <Chip
-              size="small"
-              label={`+${sku.finish_options.length - 3}`}
-              sx={{
-                fontSize: "0.7rem",
-                height: 24,
-                bgcolor: "action.hover"
-              }}
-            />
+        <Stack spacing={0.75}>
+          {/* Finish preview */}
+          {sku.finish_options.length > 0 && (
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              {sku.finish_options.slice(0, 3).map((_, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: i === 0 ? "#c9a962" : i === 1 ? "#a8a8a8" : "#4a4a4a"
+                  }}
+                />
+              ))}
+              {sku.finish_options.length > 3 && (
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", ml: 0.5 }}>
+                  +{sku.finish_options.length - 3}
+                </Typography>
+              )}
+            </Stack>
           )}
+
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+              fontSize: "1rem",
+              lineHeight: 1.3,
+              color: "text.primary",
+              mt: 1
+            }}
+          >
+            {sku.name}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              lineHeight: 1.5,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              fontSize: "0.8125rem",
+              mt: 0.5
+            }}
+          >
+            {sku.description}
+          </Typography>
+
+          <Box sx={{ mt: "auto", pt: 2 }}>
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: 600,
+                color: "text.primary",
+                fontSize: "1.0625rem"
+              }}
+            >
+              ${sku.price_per_kg_usd.toFixed(2)}
+              <Typography
+                component="span"
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 400,
+                  fontSize: "0.8125rem",
+                  ml: 0.25
+                }}
+              >
+                /kg
+              </Typography>
+            </Typography>
+          </Box>
         </Stack>
-
-        <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: "primary.main" }}>
-            ${sku.price_per_kg_usd.toFixed(2)}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            /kg
-          </Typography>
-        </Box>
       </CardContent>
-
-      <CardActions sx={{ p: 2.5, pt: 0 }}>
-        <Button
-          component={RouterLink}
-          to={`/sku/${sku.id}`}
-          fullWidth
-          variant="contained"
-          sx={{
-            fontWeight: 600,
-            py: 1.25
-          }}
-        >
-          Choose Options
-        </Button>
-      </CardActions>
     </Card>
   );
 }

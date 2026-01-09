@@ -9,23 +9,9 @@ import {
   Skeleton,
   Stack,
   Grid2 as Grid,
-  Paper,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Divider,
-  Chip,
-  Button,
-  Collapse,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-  Drawer
+  Chip
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import CloseIcon from "@mui/icons-material/Close";
+import { useTheme } from "@mui/material/styles";
 import SkuCard from "../components/SkuCard";
 import { getCategoryById, getSkusByCategory } from "../lib/api";
 import type { Category, Sku } from "../lib/database.types";
@@ -35,12 +21,9 @@ export default function CategoryPage() {
   const [category, setCategory] = useState<Category | null>(null);
   const [skus, setSkus] = useState<Sku[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFinishes, setSelectedFinishes] = useState<string[]>([]);
-  const [expandedFilters, setExpandedFilters] = useState({ finishes: true });
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  
+  const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isDark = theme.palette.mode === "dark";
 
   useEffect(() => {
     async function loadData() {
@@ -53,7 +36,7 @@ export default function CategoryPage() {
         ]);
         setCategory(categoryData);
         setSkus(skusData);
-        setSelectedFinishes([]);
+        setSelectedFinish(null);
       } catch (error) {
         console.error("Failed to load category:", error);
       } finally {
@@ -63,140 +46,38 @@ export default function CategoryPage() {
     loadData();
   }, [categoryId]);
 
-  // Get all unique finish options
   const allFinishes = useMemo(() => {
     const finishSet = new Set<string>();
     skus.forEach((sku) => sku.finish_options.forEach((f) => finishSet.add(f)));
     return Array.from(finishSet).sort();
   }, [skus]);
 
-  // Filter SKUs based on selected finishes
   const filteredSkus = useMemo(() => {
-    if (selectedFinishes.length === 0) return skus;
-    return skus.filter((sku) =>
-      sku.finish_options.some((f) => selectedFinishes.includes(f))
-    );
-  }, [skus, selectedFinishes]);
-
-  const handleFinishToggle = (finish: string) => {
-    setSelectedFinishes((prev) =>
-      prev.includes(finish) ? prev.filter((f) => f !== finish) : [...prev, finish]
-    );
-  };
-
-  const clearFilters = () => {
-    setSelectedFinishes([]);
-  };
-
-  const FilterContent = () => (
-    <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-          Filters
-        </Typography>
-        {selectedFinishes.length > 0 && (
-          <Button size="small" onClick={clearFilters} color="primary">
-            Clear All
-          </Button>
-        )}
-      </Stack>
-
-      {/* Availability Filter */}
-      <Paper variant="outlined" sx={{ mb: 2 }}>
-        <Box sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-            Availability
-          </Typography>
-          <FormGroup>
-            <FormControlLabel
-              control={<Checkbox defaultChecked size="small" />}
-              label={<Typography variant="body2">In Stock ({skus.length})</Typography>}
-            />
-          </FormGroup>
-        </Box>
-      </Paper>
-
-      {/* Finish Options Filter */}
-      {allFinishes.length > 0 && (
-        <Paper variant="outlined" sx={{ mb: 2 }}>
-          <Box
-            sx={{
-              p: 2,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              cursor: "pointer"
-            }}
-            onClick={() => setExpandedFilters((prev) => ({ ...prev, finishes: !prev.finishes }))}
-          >
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              Finish Options
-            </Typography>
-            {expandedFilters.finishes ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </Box>
-          <Collapse in={expandedFilters.finishes}>
-            <Divider />
-            <Box sx={{ p: 2 }}>
-              <FormGroup>
-                {allFinishes.map((finish) => (
-                  <FormControlLabel
-                    key={finish}
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={selectedFinishes.includes(finish)}
-                        onChange={() => handleFinishToggle(finish)}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2">
-                        {finish} ({skus.filter((s) => s.finish_options.includes(finish)).length})
-                      </Typography>
-                    }
-                  />
-                ))}
-              </FormGroup>
-            </Box>
-          </Collapse>
-        </Paper>
-      )}
-
-      {/* Price Range Info */}
-      <Paper variant="outlined" sx={{ mb: 2 }}>
-        <Box sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-            Price Range
-          </Typography>
-          {skus.length > 0 && (
-            <Typography variant="body2" color="text.secondary">
-              ${Math.min(...skus.map((s) => s.price_per_kg_usd)).toFixed(2)} -{" "}
-              ${Math.max(...skus.map((s) => s.price_per_kg_usd)).toFixed(2)} per kg
-            </Typography>
-          )}
-        </Box>
-      </Paper>
-    </Box>
-  );
+    if (!selectedFinish) return skus;
+    return skus.filter((sku) => sku.finish_options.includes(selectedFinish));
+  }, [skus, selectedFinish]);
 
   if (loading) {
     return (
-      <Box>
-        <Skeleton width={200} height={24} sx={{ mb: 2 }} />
-        <Skeleton width={300} height={48} sx={{ mb: 1 }} />
-        <Skeleton width="60%" height={20} sx={{ mb: 4 }} />
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 3 }}>
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 9 }}>
-            <Grid container spacing={3}>
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={i}>
-                  <Skeleton variant="rectangular" height={380} sx={{ borderRadius: 2 }} />
-                </Grid>
-              ))}
+      <Box sx={{ pt: 4 }}>
+        <Skeleton width={180} height={18} sx={{ mb: 4, borderRadius: 1 }} />
+        <Box sx={{ textAlign: "center", mb: 8 }}>
+          <Skeleton width={280} height={56} sx={{ mx: "auto", mb: 2, borderRadius: 2 }} />
+          <Skeleton width={400} height={24} sx={{ mx: "auto", borderRadius: 1 }} />
+        </Box>
+        <Grid container spacing={2.5}>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={i}>
+              <Skeleton
+                variant="rectangular"
+                sx={{
+                  pt: "130%",
+                  borderRadius: 4,
+                  bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"
+                }}
+              />
             </Grid>
-          </Grid>
+          ))}
         </Grid>
       </Box>
     );
@@ -209,103 +90,150 @@ export default function CategoryPage() {
   return (
     <Box>
       {/* Breadcrumbs */}
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link component={RouterLink} underline="hover" color="inherit" to="/">
+      <Breadcrumbs sx={{ pt: 3, mb: 4 }}>
+        <Link
+          component={RouterLink}
+          underline="hover"
+          color="text.secondary"
+          to="/"
+          sx={{ fontSize: "0.8125rem", fontWeight: 500 }}
+        >
           Home
         </Link>
-        <Typography color="text.primary" sx={{ fontWeight: 500 }}>
+        <Typography color="text.primary" sx={{ fontSize: "0.8125rem", fontWeight: 500 }}>
           {category.name}
         </Typography>
       </Breadcrumbs>
 
       {/* Category Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
+      <Box
+        sx={{
+          textAlign: "center",
+          pb: { xs: 5, md: 7 },
+          position: "relative"
+        }}
+      >
+        {/* Decorative gradient */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            height: 200,
+            borderRadius: "50%",
+            background: isDark
+              ? "radial-gradient(ellipse, rgba(118,75,162,0.12) 0%, transparent 70%)"
+              : "radial-gradient(ellipse, rgba(118,75,162,0.06) 0%, transparent 70%)",
+            filter: "blur(40px)",
+            pointerEvents: "none"
+          }}
+        />
+
+        <Typography
+          variant="h2"
+          sx={{
+            fontWeight: 700,
+            fontSize: { xs: "2.25rem", md: "3.25rem" },
+            letterSpacing: "-0.03em",
+            mb: 2
+          }}
+        >
           {category.name}
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600 }}>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            maxWidth: 480,
+            mx: "auto",
+            fontSize: "1.0625rem",
+            lineHeight: 1.6
+          }}
+        >
           {category.description}
         </Typography>
       </Box>
 
-      {/* Mobile Filter Button */}
-      {isMobile && (
-        <Button
-          variant="outlined"
-          startIcon={<FilterListIcon />}
-          onClick={() => setMobileFilterOpen(true)}
-          sx={{ mb: 3 }}
+      {/* Finish Filter Pills */}
+      {allFinishes.length > 0 && (
+        <Stack
+          direction="row"
+          spacing={1}
+          justifyContent="center"
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mb: 5 }}
         >
-          Filters {selectedFinishes.length > 0 && `(${selectedFinishes.length})`}
-        </Button>
-      )}
-
-      {/* Active Filters */}
-      {selectedFinishes.length > 0 && (
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
-          {selectedFinishes.map((finish) => (
+          <Chip
+            label="All"
+            onClick={() => setSelectedFinish(null)}
+            sx={{
+              fontWeight: 500,
+              px: 1,
+              bgcolor: selectedFinish === null
+                ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                : "transparent",
+              border: "1px solid",
+              borderColor: selectedFinish === null
+                ? "transparent"
+                : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              "&:hover": {
+                bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+              }
+            }}
+          />
+          {allFinishes.map((finish) => (
             <Chip
               key={finish}
               label={finish}
-              onDelete={() => handleFinishToggle(finish)}
-              size="small"
-              color="primary"
-              variant="outlined"
+              onClick={() => setSelectedFinish(finish === selectedFinish ? null : finish)}
+              sx={{
+                fontWeight: 500,
+                px: 1,
+                bgcolor: selectedFinish === finish
+                  ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                  : "transparent",
+                border: "1px solid",
+                borderColor: selectedFinish === finish
+                  ? "transparent"
+                  : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                "&:hover": {
+                  bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+                }
+              }}
             />
           ))}
         </Stack>
       )}
 
-      <Grid container spacing={4}>
-        {/* Desktop Filters Sidebar */}
-        {!isMobile && (
-          <Grid size={{ md: 3 }}>
-            <FilterContent />
-          </Grid>
-        )}
-
-        {/* Products Grid */}
-        <Grid size={{ xs: 12, md: isMobile ? 12 : 9 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              Showing {filteredSkus.length} of {skus.length} products
-            </Typography>
-          </Stack>
-
-          {filteredSkus.length === 0 ? (
-            <Alert severity="info">
-              No products match the selected filters. Try adjusting your filters.
-            </Alert>
-          ) : (
-            <Grid container spacing={3}>
-              {filteredSkus.map((sku) => (
-                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={sku.id}>
-                  <SkuCard sku={sku} />
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Grid>
-      </Grid>
-
-      {/* Mobile Filter Drawer */}
-      <Drawer
-        anchor="left"
-        open={mobileFilterOpen}
-        onClose={() => setMobileFilterOpen(false)}
-        PaperProps={{ sx: { width: 300, p: 2 } }}
+      {/* Products Count */}
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: 4, textAlign: "center", fontWeight: 500 }}
       >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Filters
-          </Typography>
-          <IconButton onClick={() => setMobileFilterOpen(false)}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-        <Divider sx={{ mb: 2 }} />
-        <FilterContent />
-      </Drawer>
+        {filteredSkus.length} {filteredSkus.length === 1 ? "product" : "products"}
+      </Typography>
+
+      {/* Products Grid */}
+      {filteredSkus.length === 0 ? (
+        <Typography color="text.secondary" sx={{ textAlign: "center", py: 16 }}>
+          No products match the selected filter.
+        </Typography>
+      ) : (
+        <Grid container spacing={2.5}>
+          {filteredSkus.map((sku) => (
+            <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={sku.id}>
+              <SkuCard sku={sku} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      {/* Bottom spacer */}
+      <Box sx={{ height: 80 }} />
     </Box>
   );
 }

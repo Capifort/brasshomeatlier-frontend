@@ -13,15 +13,12 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Divider,
-  Badge
+  Divider
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import SearchIcon from "@mui/icons-material/Search";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import { ThemeModeContext } from "../providers/ThemeModeProvider";
 import { getCategories } from "../lib/api";
@@ -33,9 +30,18 @@ export default function Navbar() {
   const { toggleMode } = useContext(ThemeModeContext);
   const [categories, setCategories] = useState<Category[]>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     getCategories().then(setCategories).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const goToCategory = (categoryId: string) => {
@@ -43,44 +49,32 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
+  const isDark = theme.palette.mode === "dark";
+
   return (
     <>
-      {/* Top Banner */}
-      <Box
-        sx={{
-          bgcolor: "primary.main",
-          color: "white",
-          py: 1,
-          textAlign: "center"
-        }}
-      >
-        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "0.85rem" }}>
-          Get flat <strong>15% OFF</strong> on all Brass Home Atelier Products — Use code{" "}
-          <Box component="span" sx={{ bgcolor: "rgba(255,255,255,0.2)", px: 1, py: 0.25, borderRadius: 1, fontWeight: 700 }}>
-            BRASS15
-          </Box>{" "}
-          at checkout
-        </Typography>
-      </Box>
-
-      {/* Main Navbar */}
       <AppBar
         position="sticky"
-        color="inherit"
         elevation={0}
         sx={{
-          borderBottom: 1,
+          bgcolor: scrolled
+            ? isDark
+              ? "rgba(0,0,0,0.85)"
+              : "rgba(251,251,253,0.85)"
+            : "transparent",
+          backdropFilter: scrolled ? "saturate(180%) blur(20px)" : "none",
+          borderBottom: scrolled ? "1px solid" : "none",
           borderColor: "divider",
-          bgcolor: "background.paper"
+          transition: "all 0.3s ease"
         }}
       >
-        <Container maxWidth="xl">
-          <Toolbar sx={{ py: 1, px: { xs: 0 } }}>
+        <Container maxWidth="lg">
+          <Toolbar sx={{ py: 1, px: { xs: 0 }, minHeight: { xs: 52, sm: 56 } }}>
             {/* Mobile Menu Button */}
             <IconButton
               edge="start"
               onClick={() => setMobileOpen(true)}
-              sx={{ mr: 1, display: { md: "none" } }}
+              sx={{ mr: 1, display: { md: "none" }, color: "text.primary" }}
             >
               <MenuIcon />
             </IconButton>
@@ -92,90 +86,72 @@ export default function Navbar() {
               sx={{
                 textDecoration: "none",
                 display: "flex",
-                alignItems: "center",
-                mr: 4
+                alignItems: "center"
               }}
             >
-              <Typography
-                variant="h5"
+              <Box
+                component="img"
+                src="https://orackhehwyggohpawsqd.supabase.co/storage/v1/object/public/images/skus/WhatsApp%20Image%202026-01-10%20at%201.49.56%20AM.jpeg"
+                alt="Brass Home"
                 sx={{
-                  color: "primary.main",
-                  fontWeight: 800,
-                  letterSpacing: "-0.02em",
-                  fontSize: { xs: "1.25rem", md: "1.5rem" }
+                  height: { xs: 70, sm: 56, md: 64 },
+                  width: "auto",
+                  objectFit: "contain"
                 }}
-              >
-                BRASS
-                <Box component="span" sx={{ color: "secondary.main" }}>HOME</Box>
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: "text.secondary",
-                  ml: 1,
-                  display: { xs: "none", sm: "block" },
-                  fontSize: "0.7rem",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase"
-                }}
-              >
-                Atelier
-              </Typography>
+              />
             </Box>
 
             {/* Desktop Navigation */}
             <Stack
               direction="row"
-              spacing={0.5}
+              spacing={0}
               sx={{
                 display: { xs: "none", md: "flex" },
-                flexGrow: 1
+                flexGrow: 1,
+                justifyContent: "center"
               }}
             >
-              <Button
-                component={RouterLink}
-                to="/"
-                sx={{ color: "text.primary", fontWeight: 500, px: 2 }}
-              >
-                Home
-              </Button>
               {categories.map((c) => (
                 <Button
                   key={c.id}
                   onClick={() => goToCategory(c.id)}
-                  sx={{ color: "text.primary", fontWeight: 500, px: 2 }}
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 400,
+                    fontSize: "0.875rem",
+                    px: 2,
+                    py: 1,
+                    minWidth: "auto",
+                    borderRadius: 2,
+                    "&:hover": {
+                      color: "text.primary",
+                      bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"
+                    }
+                  }}
                 >
                   {c.name}
                 </Button>
               ))}
-              <Button
-                component={RouterLink}
-                to="/admin/login"
-                sx={{ color: "text.secondary", fontWeight: 500, px: 2 }}
-              >
-                Admin
-              </Button>
             </Stack>
 
             {/* Right Icons */}
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <IconButton size="small" sx={{ color: "text.primary" }}>
-                <SearchIcon />
-              </IconButton>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: "auto" }}>
               <IconButton
                 size="small"
                 onClick={toggleMode}
-                sx={{ color: "text.primary" }}
+                sx={{
+                  color: "text.secondary",
+                  bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+                  "&:hover": {
+                    bgcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"
+                  }
+                }}
               >
-                {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-              <IconButton
-                component={RouterLink}
-                to="/admin/login"
-                size="small"
-                sx={{ color: "text.primary", display: { xs: "none", sm: "flex" } }}
-              >
-                <PersonOutlineIcon />
+                {isDark ? (
+                  <Brightness7Icon sx={{ fontSize: 18 }} />
+                ) : (
+                  <Brightness4Icon sx={{ fontSize: 18 }} />
+                )}
               </IconButton>
             </Stack>
           </Toolbar>
@@ -187,29 +163,55 @@ export default function Navbar() {
         anchor="left"
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        PaperProps={{ sx: { width: 280 } }}
+        PaperProps={{
+          sx: {
+            width: "100%",
+            maxWidth: 320,
+            bgcolor: "background.default",
+            backgroundImage: "none"
+          }
+        }}
       >
-        <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: "primary.main" }}>
+        <Box sx={{ p: 2.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Menu
           </Typography>
-          <IconButton onClick={() => setMobileOpen(false)}>
+          <IconButton onClick={() => setMobileOpen(false)} size="small">
             <CloseIcon />
           </IconButton>
         </Box>
         <Divider />
-        <List>
-          <ListItemButton onClick={() => { navigate("/"); setMobileOpen(false); }}>
-            <ListItemText primary="Home" primaryTypographyProps={{ fontWeight: 500 }} />
+        <List sx={{ pt: 2, px: 1 }}>
+          <ListItemButton
+            onClick={() => { navigate("/"); setMobileOpen(false); }}
+            sx={{ py: 1.5, borderRadius: 2 }}
+          >
+            <ListItemText
+              primary="Home"
+              primaryTypographyProps={{ fontWeight: 500, fontSize: "1.0625rem" }}
+            />
           </ListItemButton>
           {categories.map((c) => (
-            <ListItemButton key={c.id} onClick={() => goToCategory(c.id)}>
-              <ListItemText primary={c.name} primaryTypographyProps={{ fontWeight: 500 }} />
+            <ListItemButton
+              key={c.id}
+              onClick={() => goToCategory(c.id)}
+              sx={{ py: 1.5, borderRadius: 2 }}
+            >
+              <ListItemText
+                primary={c.name}
+                primaryTypographyProps={{ fontWeight: 500, fontSize: "1.0625rem" }}
+              />
             </ListItemButton>
           ))}
-          <Divider sx={{ my: 1 }} />
-          <ListItemButton onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}>
-            <ListItemText primary="Admin Login" primaryTypographyProps={{ fontWeight: 500 }} />
+          <Divider sx={{ my: 2 }} />
+          <ListItemButton
+            onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}
+            sx={{ py: 1.5, borderRadius: 2 }}
+          >
+            <ListItemText
+              primary="Admin"
+              primaryTypographyProps={{ fontWeight: 500, fontSize: "1.0625rem", color: "text.secondary" }}
+            />
           </ListItemButton>
         </List>
       </Drawer>

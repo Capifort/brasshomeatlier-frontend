@@ -12,15 +12,9 @@ import {
   Stack,
   Typography,
   Button,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow
+  Skeleton
 } from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import VerifiedIcon from "@mui/icons-material/Verified";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import { useTheme } from "@mui/material/styles";
 import { getSkuById, getCategoryById } from "../lib/api";
 import type { Sku, Category } from "../lib/database.types";
 import QuoteDialog from "../components/QuoteDialog";
@@ -32,6 +26,8 @@ export default function SkuDetailPage() {
   const [loading, setLoading] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   useEffect(() => {
     async function loadData() {
@@ -57,18 +53,21 @@ export default function SkuDetailPage() {
 
   if (loading) {
     return (
-      <Box>
-        <Skeleton width={300} height={24} sx={{ mb: 3 }} />
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Skeleton variant="rectangular" height={500} sx={{ borderRadius: 2 }} />
+      <Box sx={{ pt: 3 }}>
+        <Skeleton width={220} height={18} sx={{ mb: 4, borderRadius: 1 }} />
+        <Grid container spacing={{ xs: 4, md: 8 }}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Skeleton
+              variant="rectangular"
+              sx={{ pt: "100%", borderRadius: 4, bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)" }}
+            />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Skeleton width="80%" height={48} sx={{ mb: 2 }} />
-            <Skeleton width="100%" height={24} />
-            <Skeleton width="100%" height={24} />
-            <Skeleton width="60%" height={24} sx={{ mb: 3 }} />
-            <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Skeleton width="40%" height={18} sx={{ mb: 1, borderRadius: 1 }} />
+            <Skeleton width="80%" height={48} sx={{ mb: 2, borderRadius: 2 }} />
+            <Skeleton width="50%" height={36} sx={{ mb: 3, borderRadius: 1 }} />
+            <Skeleton width="100%" height={80} sx={{ mb: 4, borderRadius: 2 }} />
+            <Skeleton width="100%" height={56} sx={{ borderRadius: 100 }} />
           </Grid>
         </Grid>
       </Box>
@@ -76,35 +75,50 @@ export default function SkuDetailPage() {
   }
 
   if (!sku) {
-    return <Alert severity="warning">SKU not found.</Alert>;
+    return <Alert severity="warning">Product not found.</Alert>;
   }
 
   return (
     <Box>
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link component={RouterLink} underline="hover" color="inherit" to="/">
+      {/* Breadcrumbs */}
+      <Breadcrumbs sx={{ pt: 3, mb: 4 }}>
+        <Link
+          component={RouterLink}
+          underline="hover"
+          color="text.secondary"
+          to="/"
+          sx={{ fontSize: "0.8125rem", fontWeight: 500 }}
+        >
           Home
         </Link>
         {category && (
-          <Link component={RouterLink} underline="hover" color="inherit" to={`/category/${category.id}`}>
+          <Link
+            component={RouterLink}
+            underline="hover"
+            color="text.secondary"
+            to={`/category/${category.id}`}
+            sx={{ fontSize: "0.8125rem", fontWeight: 500 }}
+          >
             {category.name}
           </Link>
         )}
-        <Typography color="text.primary" sx={{ fontWeight: 500 }}>
+        <Typography color="text.primary" sx={{ fontSize: "0.8125rem", fontWeight: 500 }}>
           {sku.name}
         </Typography>
       </Breadcrumbs>
 
-      <Grid container spacing={5}>
+      <Grid container spacing={{ xs: 4, md: 8 }}>
         {/* Product Image */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper
-            variant="outlined"
+        <Grid size={{ xs: 12, md: 7 }}>
+          <Box
             sx={{
+              position: "relative",
+              pt: "100%",
+              borderRadius: 5,
               overflow: "hidden",
-              borderRadius: 2,
-              position: "sticky",
-              top: 100
+              bgcolor: isDark ? "rgba(255,255,255,0.03)" : "#f5f5f7",
+              border: "1px solid",
+              borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"
             }}
           >
             <Box
@@ -115,175 +129,243 @@ export default function SkuDetailPage() {
               }
               alt={sku.name}
               sx={{
-                display: "block",
+                position: "absolute",
+                top: 0,
+                left: 0,
                 width: "100%",
-                height: { xs: 350, md: 500 },
+                height: "100%",
                 objectFit: "cover"
               }}
             />
-          </Paper>
+          </Box>
         </Grid>
 
         {/* Product Details */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, lineHeight: 1.2 }}>
-            {sku.name}
-          </Typography>
-          
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: "primary.main" }}>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Box sx={{ position: "sticky", top: 100 }}>
+            {/* Category */}
+            {category && (
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  fontSize: "0.75rem"
+                }}
+              >
+                {category.name}
+              </Typography>
+            )}
+
+            {/* Product Name */}
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: "2rem", md: "2.75rem" },
+                letterSpacing: "-0.03em",
+                lineHeight: 1.1,
+                mt: 1,
+                mb: 3
+              }}
+            >
+              {sku.name}
+            </Typography>
+
+            {/* Price */}
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 600,
+                fontSize: "1.75rem",
+                mb: 3
+              }}
+            >
               ${sku.price_per_kg_usd.toFixed(2)}
+              <Typography
+                component="span"
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 400,
+                  fontSize: "1rem",
+                  ml: 0.5
+                }}
+              >
+                per kg
+              </Typography>
             </Typography>
-            <Typography variant="h6" color="text.secondary">
-              per kg
-            </Typography>
-          </Stack>
 
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.7 }}>
-            {sku.description}
-          </Typography>
-
-          {/* Finish Options */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
-              Finish Options
+            {/* Description */}
+            <Typography
+              variant="body1"
+              sx={{
+                color: "text.secondary",
+                lineHeight: 1.7,
+                mb: 4,
+                fontSize: "1.0625rem"
+              }}
+            >
+              {sku.description}
             </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              {sku.finish_options.map((f) => (
-                <Chip
-                  key={f}
-                  label={f}
-                  onClick={() => setSelectedFinish(f)}
-                  variant={selectedFinish === f ? "filled" : "outlined"}
-                  color={selectedFinish === f ? "primary" : "default"}
-                  sx={{
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    "&:hover": {
-                      borderColor: "primary.main"
-                    }
-                  }}
-                />
-              ))}
-            </Stack>
-          </Box>
 
-          {/* Order Info */}
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 3,
-              mb: 4,
-              borderRadius: 2,
-              bgcolor: "background.default"
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
-              Order Information
-            </Typography>
-            <Stack spacing={2}>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2" color="text.secondary">
-                  Minimum Order
+            {/* Finish Options */}
+            {sku.finish_options.length > 0 && (
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 600, mb: 2, color: "text.primary" }}
+                >
+                  Finish — <Box component="span" sx={{ fontWeight: 400, color: "text.secondary" }}>{selectedFinish}</Box>
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {sku.min_order_kg} kg
-                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {sku.finish_options.map((f) => (
+                    <Chip
+                      key={f}
+                      label={f}
+                      onClick={() => setSelectedFinish(f)}
+                      sx={{
+                        fontWeight: 500,
+                        bgcolor: selectedFinish === f
+                          ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                          : "transparent",
+                        border: "1px solid",
+                        borderColor: selectedFinish === f
+                          ? "transparent"
+                          : isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)",
+                        "&:hover": {
+                          bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+                        }
+                      }}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            )}
+
+            {/* Order Info Card */}
+            <Paper
+              sx={{
+                p: 3,
+                mb: 4,
+                borderRadius: 4,
+                bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                border: "1px solid",
+                borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"
+              }}
+            >
+              <Stack spacing={2.5}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="body2" color="text.secondary">
+                    Minimum Order
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {sku.min_order_kg} kg
+                  </Typography>
+                </Stack>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="body2" color="text.secondary">
+                    Lead Time
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {sku.lead_time_days} days
+                  </Typography>
+                </Stack>
+                <Divider sx={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="body2" color="text.secondary">
+                    Starting From
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    ${(sku.price_per_kg_usd * sku.min_order_kg).toFixed(2)}
+                  </Typography>
+                </Stack>
               </Stack>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2" color="text.secondary">
-                  Standard Lead Time
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {sku.lead_time_days} days
-                </Typography>
-              </Stack>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2" color="text.secondary">
-                  Estimated Total (Min Order)
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 700, color: "primary.main" }}>
-                  ${(sku.price_per_kg_usd * sku.min_order_kg).toFixed(2)}
-                </Typography>
-              </Stack>
-            </Stack>
-          </Paper>
+            </Paper>
 
-          {/* CTA Buttons */}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 4 }}>
+            {/* CTA Button */}
             <Button
               variant="contained"
               size="large"
               fullWidth
               onClick={() => setQuoteOpen(true)}
-              sx={{ py: 1.5, fontWeight: 600 }}
+              sx={{
+                py: 2,
+                fontSize: "1.0625rem",
+                fontWeight: 500,
+                borderRadius: 100
+              }}
             >
               Request Quote
             </Button>
+
+            {/* Back Link */}
             {category && (
               <Button
                 component={RouterLink}
                 to={`/category/${category.id}`}
-                variant="outlined"
-                size="large"
                 fullWidth
-                sx={{ py: 1.5 }}
+                sx={{
+                  mt: 2,
+                  color: "primary.main",
+                  fontWeight: 500
+                }}
               >
-                Back to {category.name}
+                Browse all {category.name}
               </Button>
             )}
-          </Stack>
-
-          {/* Trust Badges */}
-          <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <LocalShippingIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-              <Typography variant="body2" color="text.secondary">
-                Global Shipping
-              </Typography>
-            </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <VerifiedIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-              <Typography variant="body2" color="text.secondary">
-                100% Solid Brass
-              </Typography>
-            </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <SupportAgentIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-              <Typography variant="body2" color="text.secondary">
-                24/7 Support
-              </Typography>
-            </Stack>
-          </Stack>
+          </Box>
         </Grid>
       </Grid>
 
       {/* Specifications */}
       {sku.specs && typeof sku.specs === "object" && !Array.isArray(sku.specs) && Object.keys(sku.specs).length > 0 && (
-        <Box sx={{ mt: 6 }}>
-          <Divider sx={{ mb: 4 }} />
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
+        <Box sx={{ mt: 12, mb: 8 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 600,
+              mb: 5,
+              textAlign: "center",
+              letterSpacing: "-0.02em"
+            }}
+          >
             Specifications
           </Typography>
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
-            <Table>
-              <TableBody>
-                {Object.entries(sku.specs as Record<string, string | number>).map(([key, value], index) => (
-                  <TableRow
-                    key={key}
-                    sx={{
-                      bgcolor: index % 2 === 0 ? "background.default" : "background.paper"
-                    }}
-                  >
-                    <TableCell sx={{ fontWeight: 500, width: "40%", py: 2 }}>
-                      {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-                    </TableCell>
-                    <TableCell sx={{ py: 2 }}>{String(value)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
+          <Box
+            sx={{
+              maxWidth: 560,
+              mx: "auto",
+              borderRadius: 4,
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"
+            }}
+          >
+            {Object.entries(sku.specs as Record<string, string | number>).map(([key, value], index, arr) => (
+              <Box
+                key={key}
+                sx={{
+                  px: 3,
+                  py: 2,
+                  bgcolor: index % 2 === 0
+                    ? isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)"
+                    : "transparent",
+                  borderBottom: index < arr.length - 1 ? "1px solid" : "none",
+                  borderColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"
+                }}
+              >
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="body2" color="text.secondary">
+                    {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {String(value)}
+                  </Typography>
+                </Stack>
+              </Box>
+            ))}
+          </Box>
         </Box>
       )}
 
