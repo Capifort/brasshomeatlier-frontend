@@ -18,6 +18,7 @@ import { useTheme } from "@mui/material/styles";
 import { getSkuById, getCategoryById } from "../lib/api";
 import type { Sku, Category } from "../lib/database.types";
 import QuoteDialog from "../components/QuoteDialog";
+import { useSettings } from "../contexts/SettingsContext";
 
 export default function SkuDetailPage() {
   const { skuId } = useParams<{ skuId: string }>();
@@ -28,6 +29,7 @@ export default function SkuDetailPage() {
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { settings } = useSettings();
 
   useEffect(() => {
     async function loadData() {
@@ -174,27 +176,29 @@ export default function SkuDetailPage() {
             </Typography>
 
             {/* Price */}
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 600,
-                fontSize: "1.75rem",
-                mb: 3
-              }}
-            >
-              ${sku.price_per_kg_usd.toFixed(2)}
+            {settings.show_pricing && (
               <Typography
-                component="span"
+                variant="h4"
                 sx={{
-                  color: "text.secondary",
-                  fontWeight: 400,
-                  fontSize: "1rem",
-                  ml: 0.5
+                  fontWeight: 600,
+                  fontSize: "1.75rem",
+                  mb: 3
                 }}
               >
-                per kg
+                ${sku.price_per_kg_usd.toFixed(2)}
+                <Typography
+                  component="span"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 400,
+                    fontSize: "1rem",
+                    ml: 0.5
+                  }}
+                >
+                  per kg
+                </Typography>
               </Typography>
-            </Typography>
+            )}
 
             {/* Description */}
             <Typography
@@ -271,15 +275,19 @@ export default function SkuDetailPage() {
                     {sku.lead_time_days} days
                   </Typography>
                 </Stack>
-                <Divider sx={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography variant="body2" color="text.secondary">
-                    Starting From
-                  </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    ${(sku.price_per_kg_usd * sku.min_order_kg).toFixed(2)}
-                  </Typography>
-                </Stack>
+                {settings.show_pricing && (
+                  <>
+                    <Divider sx={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography variant="body2" color="text.secondary">
+                        Starting From
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        ${(sku.price_per_kg_usd * sku.min_order_kg).toFixed(2)}
+                      </Typography>
+                    </Stack>
+                  </>
+                )}
               </Stack>
             </Paper>
 

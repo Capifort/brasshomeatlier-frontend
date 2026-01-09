@@ -21,7 +21,8 @@ import {
   Inventory2,
   RequestQuote,
   Logout,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Settings
 } from "@mui/icons-material";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -32,7 +33,8 @@ const navItems = [
   { path: "/admin/dashboard", label: "Dashboard", icon: <Dashboard /> },
   { path: "/admin/categories", label: "Categories", icon: <Category /> },
   { path: "/admin/skus", label: "SKUs", icon: <Inventory2 /> },
-  { path: "/admin/quotes", label: "Quote Requests", icon: <RequestQuote /> }
+  { path: "/admin/quotes", label: "Quote Requests", icon: <RequestQuote /> },
+  { path: "/admin/settings", label: "Settings", icon: <Settings /> }
 ];
 
 export default function AdminLayout() {

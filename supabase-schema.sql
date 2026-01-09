@@ -44,6 +44,19 @@ CREATE TABLE IF NOT EXISTS quote_requests (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Settings Table (for app-wide settings like show_pricing)
+CREATE TABLE IF NOT EXISTS settings (
+  id VARCHAR(50) PRIMARY KEY DEFAULT 'app_settings',
+  show_pricing BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert default settings row
+INSERT INTO settings (id, show_pricing)
+VALUES ('app_settings', true)
+ON CONFLICT (id) DO NOTHING;
+
 -- Indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_skus_category_id ON skus(category_id);
 CREATE INDEX IF NOT EXISTS idx_quote_requests_status ON quote_requests(status);
@@ -54,6 +67,7 @@ CREATE INDEX IF NOT EXISTS idx_quote_requests_created_at ON quote_requests(creat
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE skus ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quote_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for categories and SKUs (anyone can view products)
 CREATE POLICY "Public read access for categories" ON categories
@@ -97,6 +111,16 @@ CREATE POLICY "Public update for skus" ON skus
 
 CREATE POLICY "Public delete for skus" ON skus
   FOR DELETE USING (true);
+
+-- Settings table policies (read for public, full access for admin)
+CREATE POLICY "Public read access for settings" ON settings
+  FOR SELECT USING (true);
+
+CREATE POLICY "Public insert for settings" ON settings
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Public update for settings" ON settings
+  FOR UPDATE USING (true);
 
 -- ============================================
 -- STORAGE SETUP (Run this after creating tables)

@@ -2,6 +2,7 @@ import { Card, CardContent, CardMedia, Typography, Box, Stack } from "@mui/mater
 import { Link as RouterLink } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import type { Sku } from "../lib/database.types";
+import { useSettings } from "../contexts/SettingsContext";
 
 type Props = {
   sku: Sku;
@@ -10,6 +11,7 @@ type Props = {
 export default function SkuCard({ sku }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { settings } = useSettings();
 
   return (
     <Card
@@ -113,29 +115,31 @@ export default function SkuCard({ sku }: Props) {
             {sku.name}
           </Typography>
 
-          <Box sx={{ mt: "auto", pt: 1.5 }}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: "text.primary",
-                fontSize: "0.9375rem"
-              }}
-            >
-              ${sku.price_per_kg_usd.toFixed(2)}
+          {settings.show_pricing && (
+            <Box sx={{ mt: "auto", pt: 1.5 }}>
               <Typography
-                component="span"
+                variant="body2"
                 sx={{
-                  color: "text.secondary",
-                  fontWeight: 400,
-                  fontSize: "0.75rem",
-                  ml: 0.25
+                  fontWeight: 600,
+                  color: "text.primary",
+                  fontSize: "0.9375rem"
                 }}
               >
-                /kg
+                ${sku.price_per_kg_usd.toFixed(2)}
+                <Typography
+                  component="span"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 400,
+                    fontSize: "0.75rem",
+                    ml: 0.25
+                  }}
+                >
+                  /kg
+                </Typography>
               </Typography>
-            </Typography>
-          </Box>
+            </Box>
+          )}
         </Stack>
       </CardContent>
     </Card>
