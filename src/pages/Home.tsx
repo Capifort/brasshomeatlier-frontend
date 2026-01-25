@@ -97,13 +97,13 @@ export default function Home() {
         </Typography>
         
         <Typography
-          variant="h1"
+          variant="h2"
           sx={{
-            fontWeight: 700,
-            fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.5rem" },
-            letterSpacing: "-0.04em",
-            lineHeight: 1.05,
-            mb: 2.5,
+            fontWeight: 500,
+            fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.75rem" },
+            letterSpacing: "-0.03em",
+            lineHeight: 1.1,
+            mb: 1.5,
             background: isDark
               ? "linear-gradient(135deg, #fff 0%, #a1a1a6 100%)"
               : "linear-gradient(135deg, #1d1d1f 0%, #6e6e73 100%)",

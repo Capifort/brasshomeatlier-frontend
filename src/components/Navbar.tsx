@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import { getCategories } from "../lib/api";
 import type { Category } from "../lib/database.types";
 
@@ -45,6 +46,43 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Top Email Bar */}
+      <Box
+        sx={{
+          bgcolor: "rgba(0,0,0,0.03)",
+          borderBottom: "1px solid",
+          borderColor: "rgba(0,0,0,0.06)",
+          py: 0.75
+        }}
+      >
+        <Container maxWidth="lg">
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            spacing={0.75}
+          >
+            <EmailOutlinedIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography
+              component="a"
+              href="mailto:info@brasshomeatelier.com"
+              sx={{
+                fontSize: "0.75rem",
+                color: "text.secondary",
+                textDecoration: "none",
+                fontWeight: 500,
+                letterSpacing: "0.02em",
+                "&:hover": {
+                  color: "text.primary"
+                }
+              }}
+            >
+              info@brasshomeatelier.com
+            </Typography>
+          </Stack>
+        </Container>
+      </Box>
+
       <AppBar
         position="sticky"
         elevation={0}
