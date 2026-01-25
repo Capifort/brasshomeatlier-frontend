@@ -79,7 +79,7 @@ export default function Navbar() {
             >
               <Box
                 component="img"
-                src="https://orackhehwyggohpawsqd.supabase.co/storage/v1/object/public/images/skus/WhatsApp%20Image%202026-01-10%20at%201.49.56%20AM.jpeg"
+                src="https://orackhehwyggohpawsqd.supabase.co/storage/v1/object/public/images/skus/work.png"
                 alt="Brass Home"
                 sx={{
                   height: { xs: 70, sm: 56, md: 64 },
