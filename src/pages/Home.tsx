@@ -154,7 +154,7 @@ export default function Home() {
       ) : (
         <Grid container spacing={3}>
           {categories.map((category) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={category.id}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }} key={category.id}>
               <Card
                 component={RouterLink}
                 to={`/category/${category.id}`}
