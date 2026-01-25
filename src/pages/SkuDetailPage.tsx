@@ -141,11 +141,12 @@ export default function SkuDetailPage() {
               alt={`${sku.name} - Image ${selectedImageIndex + 1}`}
               sx={{
                 position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "85%",
+                height: "85%",
+                objectFit: "contain",
                 transition: "opacity 0.3s ease"
               }}
             />

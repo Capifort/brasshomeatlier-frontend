@@ -33,7 +33,7 @@ export default function SkuCard({ sku }: Props) {
         "&:hover": {
           borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
           "& .product-image": {
-            transform: "scale(1.05)"
+            transform: "translate(-50%, -50%) scale(1.05)"
           }
         }
       }}
@@ -54,25 +54,16 @@ export default function SkuCard({ sku }: Props) {
           className="product-image"
           sx={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)"
-          }}
-        />
-        
-        {/* Gradient overlay */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "30%",
-            background: "linear-gradient(to top, rgba(0,0,0,0.1), transparent)",
-            pointerEvents: "none"
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "85%",
+            height: "85%",
+            objectFit: "contain",
+            transition: "transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)",
+            "&:hover": {
+              transform: "translate(-50%, -50%) scale(1.05)"
+            }
           }}
         />
       </Box>
