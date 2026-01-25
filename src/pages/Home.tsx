@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Skeleton, Grid2 as Grid, Card, CardMedia, CardContent } from "@mui/material";
+import { Box, Typography, Skeleton, Grid2 as Grid, Card, CardMedia, CardContent, Paper, Stack, Button } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import { getCategories } from "../lib/api";
 import type { Category } from "../lib/database.types";
+import QuoteDialog from "../components/QuoteDialog";
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [quoteOpen, setQuoteOpen] = useState(false);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -226,6 +230,80 @@ export default function Home() {
           ))}
         </Grid>
       )}
+
+      {/* Want Something Else CTA */}
+      <Paper
+        sx={{
+          mt: 8,
+          p: { xs: 4, md: 6 },
+          textAlign: "center",
+          borderRadius: 4,
+          bgcolor: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+          border: "1px solid",
+          borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 1.5,
+            letterSpacing: "-0.02em"
+          }}
+        >
+          Want Something Else?
+        </Typography>
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ mb: 4, maxWidth: 450, mx: "auto" }}
+        >
+          Can't find what you're looking for? Let us know your requirements and we'll help you out.
+        </Typography>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          justifyContent="center"
+        >
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<DescriptionOutlinedIcon />}
+            onClick={() => setQuoteOpen(true)}
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 100,
+              fontWeight: 500
+            }}
+          >
+            Request Quote
+          </Button>
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<EmailOutlinedIcon />}
+            component="a"
+            href="mailto:info@brasshomeatelier.com"
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 100,
+              fontWeight: 500
+            }}
+          >
+            Email Us
+          </Button>
+        </Stack>
+      </Paper>
+
+      {/* Quote Dialog */}
+      <QuoteDialog
+        open={quoteOpen}
+        onClose={() => setQuoteOpen(false)}
+        skuId="general-inquiry"
+        skuName="General Inquiry"
+      />
 
       {/* Bottom spacer */}
       <Box sx={{ height: 80 }} />
