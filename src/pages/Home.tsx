@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Skeleton, Grid2 as Grid, Container } from "@mui/material";
+import { Box, Typography, Skeleton, Grid2 as Grid, Card, CardMedia, CardContent } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import SkuCard from "../components/SkuCard";
-import { getSkus } from "../lib/api";
-import type { Sku } from "../lib/database.types";
+import { Link as RouterLink } from "react-router-dom";
+import { getCategories } from "../lib/api";
+import type { Category } from "../lib/database.types";
 
 export default function Home() {
-  const [skus, setSkus] = useState<Sku[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -14,8 +14,8 @@ export default function Home() {
   useEffect(() => {
     async function loadData() {
       try {
-        const skusData = await getSkus();
-        setSkus(skusData);
+        const categoriesData = await getCategories();
+        setCategories(categoriesData);
       } catch (error) {
         console.error("Failed to load data:", error);
       } finally {
@@ -33,17 +33,19 @@ export default function Home() {
           <Skeleton width={350} height={56} sx={{ mx: "auto", mb: 1.5, borderRadius: 2 }} />
           <Skeleton width={280} height={24} sx={{ mx: "auto", borderRadius: 1 }} />
         </Box>
-        <Grid container spacing={2.5}>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Grid size={{ xs: 6, sm: 6, md: 4, lg: 3 }} key={i}>
+        <Grid container spacing={3}>
+          {[1, 2, 3].map((i) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
               <Skeleton
                 variant="rectangular"
                 sx={{
-                  pt: "130%",
+                  pt: "75%",
                   borderRadius: 4,
                   bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"
                 }}
               />
+              <Skeleton width="60%" height={32} sx={{ mt: 2, mx: "auto", borderRadius: 1 }} />
+              <Skeleton width="80%" height={20} sx={{ mt: 1, mx: "auto", borderRadius: 1 }} />
             </Grid>
           ))}
         </Grid>
@@ -58,7 +60,7 @@ export default function Home() {
         sx={{
           textAlign: "center",
           pt: { xs: 1, md: 2 },
-          pb: { xs: 3, md: 4 },
+          pb: { xs: 4, md: 6 },
           position: "relative"
         }}
       >
@@ -131,16 +133,106 @@ export default function Home() {
         </Typography>
       </Box>
 
-      {/* Products Grid */}
-      {skus.length === 0 ? (
+      {/* Section Title */}
+      <Typography
+        variant="h5"
+        sx={{
+          textAlign: "center",
+          fontWeight: 600,
+          mb: 4,
+          letterSpacing: "-0.02em"
+        }}
+      >
+        Shop by Category
+      </Typography>
+
+      {/* Categories Grid */}
+      {categories.length === 0 ? (
         <Typography color="text.secondary" sx={{ textAlign: "center", py: 16 }}>
-          No products available yet.
+          No categories available yet.
         </Typography>
       ) : (
-        <Grid container spacing={2}>
-          {skus.map((sku) => (
-            <Grid size={{ xs: 6, sm: 4, md: 2.4, lg: 2.4 }} key={sku.id}>
-              <SkuCard sku={sku} />
+        <Grid container spacing={3}>
+          {categories.map((category) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={category.id}>
+              <Card
+                component={RouterLink}
+                to={`/category/${category.id}`}
+                sx={{
+                  height: "100%",
+                  textDecoration: "none",
+                  color: "inherit",
+                  bgcolor: isDark ? "rgba(255,255,255,0.02)" : "background.paper",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                  transition: "all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)",
+                  "&:hover": {
+                    transform: "translateY(-8px)",
+                    boxShadow: isDark
+                      ? "0 20px 40px rgba(0,0,0,0.4)"
+                      : "0 20px 40px rgba(0,0,0,0.12)",
+                    borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                    "& .category-image": {
+                      transform: "scale(1.08)"
+                    }
+                  }
+                }}
+              >
+                <Box sx={{ position: "relative", pt: "70%", overflow: "hidden" }}>
+                  <CardMedia
+                    component="img"
+                    className="category-image"
+                    image={category.image_url || "https://images.unsplash.com/photo-1616386234729-1f4a9553b7c8?w=800&q=80&auto=format&fit=crop"}
+                    alt={category.name}
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      transition: "transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)"
+                    }}
+                  />
+                  {/* Gradient overlay */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: "50%",
+                      background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)",
+                      pointerEvents: "none"
+                    }}
+                  />
+                </Box>
+                <CardContent sx={{ p: 3, textAlign: "center" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 600,
+                      mb: 1,
+                      fontSize: "1.25rem",
+                      letterSpacing: "-0.01em"
+                    }}
+                  >
+                    {category.name}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      lineHeight: 1.6,
+                      fontSize: "0.9rem"
+                    }}
+                  >
+                    {category.description}
+                  </Typography>
+                </CardContent>
+              </Card>
             </Grid>
           ))}
         </Grid>

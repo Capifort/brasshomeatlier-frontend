@@ -39,7 +39,12 @@ const mockSkus: Sku[] = [
     min_order_kg: 20,
     lead_time_days: 10,
     finish_options: ["Polished Brass", "Satin Brass", "Antique Brass"],
+    material: "Brass",
     image_url: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80&auto=format&fit=crop",
+    image_urls: [
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1616386234729-1f4a9553b7c8?w=1200&q=80&auto=format&fit=crop"
+    ],
     specs: { diameterMm: 25, projectionMm: 28, weightPerUnitG: 42 },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -53,7 +58,11 @@ const mockSkus: Sku[] = [
     min_order_kg: 25,
     lead_time_days: 12,
     finish_options: ["Polished", "Satin", "Oil-Rubbed"],
+    material: "Brass",
     image_url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=80&auto=format&fit=crop",
+    image_urls: [
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=80&auto=format&fit=crop"
+    ],
     specs: { diameterMm: 30, projectionMm: 30, weightPerUnitG: 48 },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -67,7 +76,11 @@ const mockSkus: Sku[] = [
     min_order_kg: 30,
     lead_time_days: 14,
     finish_options: ["Satin", "Polished", "Blackened"],
+    material: "Stainless Steel",
     image_url: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=1200&q=80&auto=format&fit=crop",
+    image_urls: [
+      "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=1200&q=80&auto=format&fit=crop"
+    ],
     specs: { ctcMm: 160, lengthMm: 190, barDiaMm: 12, weightPerUnitG: 120 },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -81,7 +94,11 @@ const mockSkus: Sku[] = [
     min_order_kg: 40,
     lead_time_days: 15,
     finish_options: ["Polished", "Antique", "Lacquered"],
+    material: "Bronze",
     image_url: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200&q=80&auto=format&fit=crop",
+    image_urls: [
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200&q=80&auto=format&fit=crop"
+    ],
     specs: { sizeIn: "4x4", thicknessMm: 3, weightPerUnitG: 180 },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -186,7 +203,9 @@ export async function createSku(sku: SkuInsert): Promise<Sku> {
     const newSku: Sku = {
       ...sku,
       id: sku.id || crypto.randomUUID(),
+      material: sku.material || "Brass",
       image_url: sku.image_url || null,
+      image_urls: sku.image_urls || [],
       specs: sku.specs || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

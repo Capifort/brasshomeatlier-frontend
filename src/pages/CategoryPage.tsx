@@ -22,6 +22,7 @@ export default function CategoryPage() {
   const [skus, setSkus] = useState<Sku[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -37,6 +38,7 @@ export default function CategoryPage() {
         setCategory(categoryData);
         setSkus(skusData);
         setSelectedFinish(null);
+        setSelectedMaterial(null);
       } catch (error) {
         console.error("Failed to load category:", error);
       } finally {
@@ -52,10 +54,24 @@ export default function CategoryPage() {
     return Array.from(finishSet).sort();
   }, [skus]);
 
+  const allMaterials = useMemo(() => {
+    const materialSet = new Set<string>();
+    skus.forEach((sku) => {
+      if (sku.material) materialSet.add(sku.material);
+    });
+    return Array.from(materialSet).sort();
+  }, [skus]);
+
   const filteredSkus = useMemo(() => {
-    if (!selectedFinish) return skus;
-    return skus.filter((sku) => sku.finish_options.includes(selectedFinish));
-  }, [skus, selectedFinish]);
+    let filtered = skus;
+    if (selectedFinish) {
+      filtered = filtered.filter((sku) => sku.finish_options.includes(selectedFinish));
+    }
+    if (selectedMaterial) {
+      filtered = filtered.filter((sku) => sku.material === selectedMaterial);
+    }
+    return filtered;
+  }, [skus, selectedFinish, selectedMaterial]);
 
   if (loading) {
     return (
@@ -156,56 +172,127 @@ export default function CategoryPage() {
         </Typography>
       </Box>
 
-      {/* Finish Filter Pills */}
-      {allFinishes.length > 0 && (
-        <Stack
-          direction="row"
-          spacing={1}
-          justifyContent="center"
-          flexWrap="wrap"
-          useFlexGap
-          sx={{ mb: 5 }}
-        >
-          <Chip
-            label="All"
-            onClick={() => setSelectedFinish(null)}
-            sx={{
-              fontWeight: 500,
-              px: 1,
-              bgcolor: selectedFinish === null
-                ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
-                : "transparent",
-              border: "1px solid",
-              borderColor: selectedFinish === null
-                ? "transparent"
-                : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
-              "&:hover": {
-                bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
-              }
-            }}
-          />
-          {allFinishes.map((finish) => (
-            <Chip
-              key={finish}
-              label={finish}
-              onClick={() => setSelectedFinish(finish === selectedFinish ? null : finish)}
-              sx={{
-                fontWeight: 500,
-                px: 1,
-                bgcolor: selectedFinish === finish
-                  ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
-                  : "transparent",
-                border: "1px solid",
-                borderColor: selectedFinish === finish
-                  ? "transparent"
-                  : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
-                "&:hover": {
-                  bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
-                }
-              }}
-            />
-          ))}
-        </Stack>
+      {/* Filters */}
+      {(allMaterials.length > 1 || allFinishes.length > 0) && (
+        <Box sx={{ mb: 5 }}>
+          {/* Material Filter */}
+          {allMaterials.length > 1 && (
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="body2"
+                sx={{ textAlign: "center", mb: 1.5, fontWeight: 600, color: "text.secondary" }}
+              >
+                Material
+              </Typography>
+              <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="center"
+                flexWrap="wrap"
+                useFlexGap
+              >
+                <Chip
+                  label="All"
+                  onClick={() => setSelectedMaterial(null)}
+                  sx={{
+                    fontWeight: 500,
+                    px: 1,
+                    bgcolor: selectedMaterial === null
+                      ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                      : "transparent",
+                    border: "1px solid",
+                    borderColor: selectedMaterial === null
+                      ? "transparent"
+                      : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                    "&:hover": {
+                      bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+                    }
+                  }}
+                />
+                {allMaterials.map((material) => (
+                  <Chip
+                    key={material}
+                    label={material}
+                    onClick={() => setSelectedMaterial(material === selectedMaterial ? null : material)}
+                    sx={{
+                      fontWeight: 500,
+                      px: 1,
+                      bgcolor: selectedMaterial === material
+                        ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                        : "transparent",
+                      border: "1px solid",
+                      borderColor: selectedMaterial === material
+                        ? "transparent"
+                        : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                      "&:hover": {
+                        bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+                      }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          )}
+
+          {/* Finish Filter */}
+          {allFinishes.length > 0 && (
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{ textAlign: "center", mb: 1.5, fontWeight: 600, color: "text.secondary" }}
+              >
+                Finish
+              </Typography>
+              <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="center"
+                flexWrap="wrap"
+                useFlexGap
+              >
+                <Chip
+                  label="All"
+                  onClick={() => setSelectedFinish(null)}
+                  sx={{
+                    fontWeight: 500,
+                    px: 1,
+                    bgcolor: selectedFinish === null
+                      ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                      : "transparent",
+                    border: "1px solid",
+                    borderColor: selectedFinish === null
+                      ? "transparent"
+                      : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                    "&:hover": {
+                      bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+                    }
+                  }}
+                />
+                {allFinishes.map((finish) => (
+                  <Chip
+                    key={finish}
+                    label={finish}
+                    onClick={() => setSelectedFinish(finish === selectedFinish ? null : finish)}
+                    sx={{
+                      fontWeight: 500,
+                      px: 1,
+                      bgcolor: selectedFinish === finish
+                        ? isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"
+                        : "transparent",
+                      border: "1px solid",
+                      borderColor: selectedFinish === finish
+                        ? "transparent"
+                        : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                      "&:hover": {
+                        bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"
+                      }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Box>
+          )}
+        </Box>
       )}
 
       {/* Products Count */}

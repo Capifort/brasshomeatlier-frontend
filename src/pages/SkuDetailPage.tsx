@@ -12,9 +12,12 @@ import {
   Stack,
   Typography,
   Button,
-  Skeleton
+  Skeleton,
+  IconButton
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { getSkuById, getCategoryById } from "../lib/api";
 import type { Sku, Category } from "../lib/database.types";
 import QuoteDialog from "../components/QuoteDialog";
@@ -27,9 +30,17 @@ export default function SkuDetailPage() {
   const [loading, setLoading] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { settings } = useSettings();
+
+  // Get all images (use image_urls if available, otherwise fallback to image_url)
+  const allImages = sku?.image_urls?.length 
+    ? sku.image_urls 
+    : sku?.image_url 
+      ? [sku.image_url] 
+      : ["https://images.unsplash.com/photo-1616386234729-1f4a9553b7c8?w=1200&q=80&auto=format&fit=crop"];
 
   useEffect(() => {
     async function loadData() {
@@ -110,8 +121,9 @@ export default function SkuDetailPage() {
       </Breadcrumbs>
 
       <Grid container spacing={{ xs: 4, md: 8 }}>
-        {/* Product Image */}
+        {/* Product Images */}
         <Grid size={{ xs: 12, md: 7 }}>
+          {/* Main Image */}
           <Box
             sx={{
               position: "relative",
@@ -125,21 +137,134 @@ export default function SkuDetailPage() {
           >
             <Box
               component="img"
-              src={
-                sku.image_url ??
-                "https://images.unsplash.com/photo-1616386234729-1f4a9553b7c8?w=1200&q=80&auto=format&fit=crop"
-              }
-              alt={sku.name}
+              src={allImages[selectedImageIndex]}
+              alt={`${sku.name} - Image ${selectedImageIndex + 1}`}
               sx={{
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
                 height: "100%",
-                objectFit: "cover"
+                objectFit: "cover",
+                transition: "opacity 0.3s ease"
               }}
             />
+            
+            {/* Navigation arrows (only show if multiple images) */}
+            {allImages.length > 1 && (
+              <>
+                <IconButton
+                  onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1))}
+                  sx={{
+                    position: "absolute",
+                    left: 12,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    bgcolor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.9)",
+                    color: isDark ? "white" : "text.primary",
+                    "&:hover": {
+                      bgcolor: isDark ? "rgba(0,0,0,0.8)" : "white"
+                    }
+                  }}
+                >
+                  <ChevronLeftIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => setSelectedImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1))}
+                  sx={{
+                    position: "absolute",
+                    right: 12,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    bgcolor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.9)",
+                    color: isDark ? "white" : "text.primary",
+                    "&:hover": {
+                      bgcolor: isDark ? "rgba(0,0,0,0.8)" : "white"
+                    }
+                  }}
+                >
+                  <ChevronRightIcon />
+                </IconButton>
+                
+                {/* Image counter */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 16,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    bgcolor: isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.9)",
+                    color: isDark ? "white" : "text.primary",
+                    px: 2,
+                    py: 0.5,
+                    borderRadius: 100,
+                    fontSize: "0.875rem",
+                    fontWeight: 500
+                  }}
+                >
+                  {selectedImageIndex + 1} / {allImages.length}
+                </Box>
+              </>
+            )}
           </Box>
+          
+          {/* Thumbnail strip (only show if multiple images) */}
+          {allImages.length > 1 && (
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                mt: 2,
+                overflowX: "auto",
+                pb: 1,
+                "&::-webkit-scrollbar": {
+                  height: 6
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  bgcolor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+                  borderRadius: 3
+                }
+              }}
+            >
+              {allImages.map((url, index) => (
+                <Box
+                  key={`thumb-${index}`}
+                  onClick={() => setSelectedImageIndex(index)}
+                  sx={{
+                    width: 72,
+                    height: 72,
+                    minWidth: 72,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    border: "2px solid",
+                    borderColor: selectedImageIndex === index 
+                      ? "primary.main" 
+                      : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                    opacity: selectedImageIndex === index ? 1 : 0.7,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      opacity: 1,
+                      borderColor: selectedImageIndex === index 
+                        ? "primary.main" 
+                        : isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"
+                    }
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={url}
+                    alt={`${sku.name} thumbnail ${index + 1}`}
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover"
+                    }}
+                  />
+                </Box>
+              ))}
+            </Stack>
+          )}
         </Grid>
 
         {/* Product Details */}

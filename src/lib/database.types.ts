@@ -39,7 +39,9 @@ export interface Database {
           min_order_kg: number;
           lead_time_days: number;
           finish_options: string[];
+          material: string;
           image_url: string | null;
+          image_urls: string[];
           specs: Json | null;
           created_at: string;
           updated_at: string;
@@ -53,7 +55,9 @@ export interface Database {
           min_order_kg: number;
           lead_time_days: number;
           finish_options: string[];
+          material?: string;
           image_url?: string | null;
+          image_urls?: string[];
           specs?: Json | null;
           created_at?: string;
           updated_at?: string;
@@ -67,7 +71,9 @@ export interface Database {
           min_order_kg?: number;
           lead_time_days?: number;
           finish_options?: string[];
+          material?: string;
           image_url?: string | null;
+          image_urls?: string[];
           specs?: Json | null;
           created_at?: string;
           updated_at?: string;

@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS skus (
   min_order_kg INTEGER NOT NULL DEFAULT 0,
   lead_time_days INTEGER NOT NULL DEFAULT 0,
   finish_options TEXT[] DEFAULT '{}',
+  material VARCHAR(255) DEFAULT 'Brass',
   image_url TEXT,
+  image_urls TEXT[] DEFAULT '{}',
   specs JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -48,13 +50,14 @@ CREATE TABLE IF NOT EXISTS quote_requests (
 CREATE TABLE IF NOT EXISTS settings (
   id VARCHAR(50) PRIMARY KEY DEFAULT 'app_settings',
   show_pricing BOOLEAN DEFAULT true,
+  materials TEXT[] DEFAULT '{"Brass", "Bronze", "Stainless Steel", "Copper", "Zinc Alloy", "Iron", "Aluminum"}',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Insert default settings row
-INSERT INTO settings (id, show_pricing)
-VALUES ('app_settings', true)
+INSERT INTO settings (id, show_pricing, materials)
+VALUES ('app_settings', true, '{"Brass", "Bronze", "Stainless Steel", "Copper", "Zinc Alloy", "Iron", "Aluminum"}')
 ON CONFLICT (id) DO NOTHING;
 
 -- Indexes for better query performance

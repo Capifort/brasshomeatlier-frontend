@@ -26,9 +26,11 @@ import {
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { getSkus, getCategories, createSku, updateSku, deleteSku } from "../../lib/api";
 import type { Sku, SkuInsert, Category } from "../../lib/database.types";
-import ImageUpload from "../../components/ImageUpload";
+import MultiImageUpload from "../../components/MultiImageUpload";
+import { useSettings } from "../../contexts/SettingsContext";
 
 export default function AdminSkus() {
+  const { settings } = useSettings();
   const [skus, setSkus] = useState<Sku[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,9 @@ export default function AdminSkus() {
     min_order_kg: 0,
     lead_time_days: 0,
     finish_options: [],
-    image_url: ""
+    material: "Brass",
+    image_url: "",
+    image_urls: []
   });
   const [finishInput, setFinishInput] = useState("");
   const [error, setError] = useState("");
@@ -75,7 +79,9 @@ export default function AdminSkus() {
         min_order_kg: sku.min_order_kg,
         lead_time_days: sku.lead_time_days,
         finish_options: sku.finish_options,
-        image_url: sku.image_url || ""
+        material: sku.material || "Brass",
+        image_url: sku.image_url || "",
+        image_urls: sku.image_urls || []
       });
     } else {
       setEditingSku(null);
@@ -87,7 +93,9 @@ export default function AdminSkus() {
         min_order_kg: 0,
         lead_time_days: 0,
         finish_options: [],
-        image_url: ""
+        material: "Brass",
+        image_url: "",
+        image_urls: []
       });
     }
     setFinishInput("");
@@ -184,6 +192,7 @@ export default function AdminSkus() {
                   <TableCell>Image</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Category</TableCell>
+                  <TableCell>Material</TableCell>
                   <TableCell>Price/kg</TableCell>
                   <TableCell>Min Order</TableCell>
                   <TableCell>Lead Time</TableCell>
@@ -193,13 +202,13 @@ export default function AdminSkus() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                       Loading...
                     </TableCell>
                   </TableRow>
                 ) : skus.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                       No SKUs yet. Create your first one!
                     </TableCell>
                   </TableRow>
@@ -218,6 +227,11 @@ export default function AdminSkus() {
                       </TableCell>
                       <TableCell>
                         <Chip label={getCategoryName(sku.category_id)} size="small" variant="outlined" />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" color="text.secondary">
+                          {sku.material || "Brass"}
+                        </Typography>
                       </TableCell>
                       <TableCell>${sku.price_per_kg_usd.toFixed(2)}</TableCell>
                       <TableCell>{sku.min_order_kg} kg</TableCell>
@@ -268,14 +282,31 @@ export default function AdminSkus() {
               </TextField>
             </Stack>
 
-            <TextField
-              label="Description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              fullWidth
-              multiline
-              rows={2}
-            />
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                label="Description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                fullWidth
+                multiline
+                rows={2}
+                sx={{ flex: 2 }}
+              />
+              <TextField
+                label="Material"
+                value={formData.material || "Brass"}
+                onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+                select
+                fullWidth
+                sx={{ flex: 1 }}
+              >
+                {(settings.materials || []).map((mat) => (
+                  <MenuItem key={mat} value={mat}>
+                    {mat}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
 
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
@@ -330,13 +361,17 @@ export default function AdminSkus() {
 
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                Product Image
+                Product Images
               </Typography>
-              <ImageUpload
-                currentImageUrl={formData.image_url}
-                onImageUploaded={(url) => setFormData({ ...formData, image_url: url })}
-                onImageRemoved={() => setFormData({ ...formData, image_url: "" })}
+              <MultiImageUpload
+                imageUrls={formData.image_urls || []}
+                onImagesChange={(urls) => setFormData({ 
+                  ...formData, 
+                  image_urls: urls,
+                  image_url: urls[0] || "" // First image is the primary
+                })}
                 folder="skus"
+                maxImages={10}
               />
             </Box>
           </Stack>

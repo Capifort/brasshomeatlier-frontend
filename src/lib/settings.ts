@@ -2,10 +2,14 @@ import { supabase, isSupabaseConfigured } from "./supabase";
 
 export type AppSettings = {
   show_pricing: boolean;
+  materials: string[];
 };
 
+const DEFAULT_MATERIALS = ["Brass", "Bronze", "Stainless Steel", "Copper", "Zinc Alloy", "Iron", "Aluminum"];
+
 const DEFAULT_SETTINGS: AppSettings = {
-  show_pricing: true
+  show_pricing: true,
+  materials: DEFAULT_MATERIALS
 };
 
 // Local storage key for settings
@@ -41,7 +45,8 @@ export async function getSettings(): Promise<AppSettings> {
     }
 
     return {
-      show_pricing: data.show_pricing ?? true
+      show_pricing: data.show_pricing ?? true,
+      materials: data.materials ?? DEFAULT_MATERIALS
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -75,7 +80,8 @@ export async function updateSettings(settings: Partial<AppSettings>): Promise<Ap
     if (error) throw error;
 
     return {
-      show_pricing: data.show_pricing ?? true
+      show_pricing: data.show_pricing ?? true,
+      materials: data.materials ?? DEFAULT_MATERIALS
     };
   } catch {
     // Fallback to local storage
