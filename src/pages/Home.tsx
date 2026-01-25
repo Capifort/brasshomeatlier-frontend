@@ -116,7 +116,7 @@ export default function Home() {
             backgroundClip: "text"
           }}
         >
-          Brass Hardware
+          Metal Hardware
         </Typography>
         
         <Typography
@@ -133,7 +133,7 @@ export default function Home() {
         >
           Beautifully crafted. Precision engineered.
           <br />
-          Made for the finest interiors.
+          Made for the finest interiors and exteriors.
         </Typography>
       </Box>
 
