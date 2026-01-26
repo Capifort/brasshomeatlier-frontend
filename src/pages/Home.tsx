@@ -301,7 +301,7 @@ export default function Home() {
       <QuoteDialog
         open={quoteOpen}
         onClose={() => setQuoteOpen(false)}
-        skuId="general-inquiry"
+        skuId="00000000-0000-0000-0000-000000000000"
         skuName="General Inquiry"
       />
 
